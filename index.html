@@ -3,7 +3,57 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Adjustable 3x3 Photo Grid</title>
+    <title>Adjustable Photo Grid - Free Online Collage Maker</title>
+    <meta name="description" content="Free online photo grid maker. Create beautiful photo collages with adjustable grid layouts up to 5x5. Drag and drop images, resize cells, and download high-resolution collages. No signup required, works entirely in your browser.">
+    <meta name="keywords" content="photo grid, collage maker, photo collage, free online tool, image grid, photo layout, adjustable grid">
+    <meta name="author" content="Balazs Piller">
+    <link rel="canonical" href="https://balazspiller.github.io/adjustable-3x3-photo-grid/">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://balazspiller.github.io/adjustable-3x3-photo-grid/">
+    <meta property="og:title" content="Adjustable Photo Grid - Free Online Collage Maker">
+    <meta property="og:description" content="Create beautiful photo collages with adjustable grid layouts up to 5x5. Drag and drop images, resize cells, and download high-resolution collages. Free, no signup required.">
+    <meta property="og:site_name" content="Adjustable Photo Grid">
+    
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="https://balazspiller.github.io/adjustable-3x3-photo-grid/">
+    <meta name="twitter:title" content="Adjustable Photo Grid - Free Online Collage Maker">
+    <meta name="twitter:description" content="Create beautiful photo collages with adjustable grid layouts up to 5x5. Drag and drop images, resize cells, and download high-resolution collages. Free, no signup required.">
+    
+    <!-- Schema.org structured data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Adjustable Photo Grid",
+        "description": "Free online photo grid maker. Create beautiful photo collages with adjustable grid layouts up to 5x5. Drag and drop images, resize cells, and download high-resolution collages.",
+        "url": "https://balazspiller.github.io/adjustable-3x3-photo-grid/",
+        "applicationCategory": "DesignApplication",
+        "operatingSystem": "Any",
+        "browserRequirements": "Requires JavaScript. Requires HTML5 Canvas support.",
+        "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD"
+        },
+        "featureList": [
+            "Adjustable grid layouts up to 5x5",
+            "Drag and drop image positioning",
+            "Resizable grid cells",
+            "High-resolution export up to 8000px",
+            "No account required",
+            "Works entirely in browser",
+            "Privacy-friendly - no uploads"
+        ],
+        "author": {
+            "@type": "Person",
+            "name": "Balazs Piller",
+            "url": "https://github.com/balazspiller"
+        }
+    }
+    </script>
     <style>
         * {
             margin: 0;
@@ -32,11 +82,22 @@
 
         h1 {
             color: #1a1a1a;
-            margin-bottom: 32px;
+            margin-bottom: 16px;
             text-align: center;
             font-size: 24px;
             font-weight: 600;
             letter-spacing: -0.5px;
+        }
+
+        .description {
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 32px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
         }
 
         .upload-section {
@@ -85,6 +146,8 @@
         .canvas-container {
             position: relative;
             margin: 30px auto;
+            padding-right: 50px;
+            padding-bottom: 50px;
             display: flex;
             justify-content: center;
             align-items: flex-start;
@@ -126,6 +189,47 @@
 
         .resize-handle:hover::after {
             background: #4a4a4a;
+        }
+
+        .add-column-btn, .add-row-btn {
+            position: absolute;
+            background: #1a1a1a;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 20px;
+            font-weight: 300;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+            border-radius: 2px;
+            padding: 0;
+        }
+
+        .add-column-btn {
+            right: -40px;
+            top: 0;
+            bottom: 0;
+            width: 32px;
+            height: 100%;
+        }
+
+        .add-row-btn {
+            bottom: -40px;
+            left: 0;
+            right: 0;
+            height: 32px;
+            width: 100%;
+        }
+
+        .add-column-btn:hover, .add-row-btn:hover {
+            background: #2a2a2a;
+        }
+
+        .add-column-btn:disabled, .add-row-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
         }
 
         .controls {
@@ -235,7 +339,14 @@
         aria-label="Open this project on GitHub"
     >GitHub</a>
     <div class="container">
-        <h1>Adjustable 3x3 Photo Grid</h1>
+        <h1>Adjustable Photo Grid</h1>
+        
+        <p class="description">
+            <strong>Free online photo collage maker</strong> - create grid layouts in seconds. 
+            Upload your images, adjust cell sizes by dragging grid lines, and download 
+            high-resolution collages up to 8000px. No signup, no watermarks, completely 
+            private.
+        </p>
         
         <div class="upload-section">
             <div class="file-input-wrapper">
@@ -244,7 +355,7 @@
                     Add Images
                 </label>
             </div>
-            <div class="image-count" id="imageCount">0 / 9 images selected</div>
+            <div class="image-count" id="imageCount">0 / 4 images selected</div>
             
             <div style="margin-top: 20px;">
                 <label for="maxWidth" style="display: block; margin-bottom: 10px; color: #1a1a1a; font-weight: 500; font-size: 13px; letter-spacing: 0.3px;">
@@ -267,6 +378,8 @@
         <div class="canvas-container">
             <div class="canvas-wrapper">
                 <canvas id="collageCanvas" width="600" height="600"></canvas>
+                <button class="add-column-btn" id="addColumnBtn" title="Add column">+</button>
+                <button class="add-row-btn" id="addRowBtn" title="Add row">+</button>
                 <div class="resize-handle" id="resizeHandle"></div>
             </div>
         </div>
@@ -279,7 +392,8 @@
         <div class="instructions">
             <strong>How to use:</strong>
             <ul>
-                <li>Click "Add Images" to select photos - you can do this multiple times until all 9 slots are filled</li>
+                <li>Click "Add Images" to select photos - you can do this multiple times until all slots are filled</li>
+                <li>Use the + buttons to add more columns (right) or rows (bottom) - up to 5x5</li>
                 <li>Drag images to swap their positions in the grid</li>
                 <li>Drag the horizontal or vertical grid lines to adjust cell sizes</li>
                 <li>Drag the bottom handle to change the canvas aspect ratio</li>
@@ -301,13 +415,21 @@
         const resetBtn = document.getElementById('resetBtn');
         const resizeHandle = document.getElementById('resizeHandle');
         const maxWidthInput = document.getElementById('maxWidth');
+        const addColumnBtn = document.getElementById('addColumnBtn');
+        const addRowBtn = document.getElementById('addRowBtn');
 
-        let images = Array(9).fill(null); // Initialize with 9 null slots
+        // Dynamic grid size
+        let numCols = 2;
+        let numRows = 2;
+        const maxCols = 5;
+        const maxRows = 5;
+
+        let images = Array(numRows * numCols).fill(null);
         let loadedImages = [];
         
         // Grid lines positions (percentages of canvas size)
-        let verticalLines = [33.33, 66.66]; // Two vertical lines
-        let horizontalLines = [33.33, 66.66]; // Two horizontal lines
+        let verticalLines = [50]; // One vertical line for 2 columns
+        let horizontalLines = [50]; // One horizontal line for 2 rows
         
         let dragging = false;
         let dragType = null; // 'vertical', 'horizontal', 'canvas', or 'image'
@@ -326,6 +448,8 @@
         fileInput.addEventListener('change', handleFileSelect);
         downloadBtn.addEventListener('click', downloadCollage);
         resetBtn.addEventListener('click', reset);
+        addColumnBtn.addEventListener('click', addColumn);
+        addRowBtn.addEventListener('click', addRow);
         canvas.addEventListener('mousedown', handleMouseDown);
         canvas.addEventListener('mousemove', handleMouseMove);
         canvas.addEventListener('mouseup', handleMouseUp);
@@ -344,6 +468,74 @@
         document.addEventListener('mouseup', handleResizeEnd);
         document.addEventListener('touchend', handleResizeEnd);
 
+        function getTotalSlots() {
+            return numRows * numCols;
+        }
+
+        function updateImageCount() {
+            const totalLoaded = images.filter(img => img !== null && img !== undefined).length;
+            const totalSlots = getTotalSlots();
+            imageCount.textContent = `${totalLoaded} / ${totalSlots} images selected`;
+            downloadBtn.disabled = totalLoaded !== totalSlots;
+        }
+
+        function updateButtonStates() {
+            addColumnBtn.disabled = numCols >= maxCols;
+            addRowBtn.disabled = numRows >= maxRows;
+        }
+
+        function generateEvenLines(count) {
+            const lines = [];
+            for (let i = 1; i < count; i++) {
+                lines.push((i / count) * 100);
+            }
+            return lines;
+        }
+
+        function addColumn() {
+            if (numCols >= maxCols) return;
+            
+            numCols++;
+            
+            // Add null slots for the new column (one per row)
+            const newImages = [];
+            for (let row = 0; row < numRows; row++) {
+                for (let col = 0; col < numCols; col++) {
+                    if (col === numCols - 1) {
+                        newImages.push(null);
+                    } else {
+                        newImages.push(images[row * (numCols - 1) + col]);
+                    }
+                }
+            }
+            images = newImages;
+            
+            // Regenerate even grid lines
+            verticalLines = generateEvenLines(numCols);
+            
+            updateImageCount();
+            updateButtonStates();
+            drawCollage();
+        }
+
+        function addRow() {
+            if (numRows >= maxRows) return;
+            
+            numRows++;
+            
+            // Add null slots for the new row
+            for (let col = 0; col < numCols; col++) {
+                images.push(null);
+            }
+            
+            // Regenerate even grid lines
+            horizontalLines = generateEvenLines(numRows);
+            
+            updateImageCount();
+            updateButtonStates();
+            drawCollage();
+        }
+
         function handleFileSelect(e) {
             const files = Array.from(e.target.files);
             
@@ -351,7 +543,8 @@
 
             // Calculate how many slots are available
             const currentCount = images.filter(img => img !== null).length;
-            const slotsAvailable = 9 - currentCount;
+            const totalSlots = getTotalSlots();
+            const slotsAvailable = totalSlots - currentCount;
             const filesToLoad = files.slice(0, slotsAvailable);
 
             let loadedCount = 0;
@@ -370,12 +563,7 @@
                         }
                         
                         loadedCount++;
-                        const totalLoaded = images.filter(img => img !== null && img !== undefined).length;
-                        imageCount.textContent = `${totalLoaded} / 9 images selected`;
-                        
-                        if (totalLoaded === 9) {
-                            downloadBtn.disabled = false;
-                        }
+                        updateImageCount();
                         
                         drawCollage();
                     };
@@ -399,8 +587,8 @@
             const rows = [0, ...horizontalLines.map(p => p * canvas.height / 100), canvas.height];
 
             let imageIndex = 0;
-            for (let row = 0; row < 3; row++) {
-                for (let col = 0; col < 3; col++) {
+            for (let row = 0; row < numRows; row++) {
+                for (let col = 0; col < numCols; col++) {
                     const x = cols[col];
                     const y = rows[row];
                     const w = cols[col + 1] - cols[col];
@@ -538,7 +726,9 @@
         }
 
         function handleMouseDown(e) {
-            if (images.length !== 9) return;
+            const totalSlots = getTotalSlots();
+            const loadedCount = images.filter(img => img !== null).length;
+            if (loadedCount !== totalSlots) return;
 
             const rect = canvas.getBoundingClientRect();
             const scaleX = canvas.width / rect.width;
@@ -694,7 +884,9 @@
         }
 
         function updateCursor(e) {
-            if (images.length !== 9) {
+            const totalSlots = getTotalSlots();
+            const loadedCount = images.filter(img => img !== null).length;
+            if (loadedCount !== totalSlots) {
                 canvas.style.cursor = 'default';
                 return;
             }
@@ -745,11 +937,11 @@
             const cols = [0, ...verticalLines.map(p => p * canvas.width / 100), canvas.width];
             const rows = [0, ...horizontalLines.map(p => p * canvas.height / 100), canvas.height];
 
-            for (let row = 0; row < 3; row++) {
-                for (let col = 0; col < 3; col++) {
+            for (let row = 0; row < numRows; row++) {
+                for (let col = 0; col < numCols; col++) {
                     if (x >= cols[col] && x < cols[col + 1] && 
                         y >= rows[row] && y < rows[row + 1]) {
-                        return row * 3 + col;
+                        return row * numCols + col;
                     }
                 }
             }
@@ -777,8 +969,8 @@
             const rows = [0, ...horizontalLines.map(p => p * exportHeight / 100), exportHeight];
 
             let imageIndex = 0;
-            for (let row = 0; row < 3; row++) {
-                for (let col = 0; col < 3; col++) {
+            for (let row = 0; row < numRows; row++) {
+                for (let col = 0; col < numCols; col++) {
                     const x = cols[col];
                     const y = rows[row];
                     const w = cols[col + 1] - cols[col];
@@ -828,18 +1020,25 @@
         }
 
         function reset() {
-            images = Array(9).fill(null);
+            numCols = 2;
+            numRows = 2;
+            images = Array(numRows * numCols).fill(null);
             loadedImages = [];
-            verticalLines = [33.33, 66.66];
-            horizontalLines = [33.33, 66.66];
+            verticalLines = [50];
+            horizontalLines = [50];
             canvas.width = 600;
             canvas.height = 600;
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             fileInput.value = '';
-            imageCount.textContent = '0 / 9 images selected';
-            downloadBtn.disabled = true;
+            updateImageCount();
+            updateButtonStates();
             drawCollage();
         }
+
+        // Initialize
+        updateImageCount();
+        updateButtonStates();
+        drawCollage();
     </script>
 </body>
 </html>
