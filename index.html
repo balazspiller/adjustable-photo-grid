@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adjustable 3x3 Photo Grid</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #fafafa;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 2px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.12);
+            padding: 48px;
+            max-width: 900px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #1a1a1a;
+            margin-bottom: 32px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: 600;
+            letter-spacing: -0.5px;
+        }
+
+        .upload-section {
+            margin-bottom: 40px;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .file-input-wrapper input[type="file"] {
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        .file-input-label {
+            display: block;
+            padding: 16px 32px;
+            background: #1a1a1a;
+            color: white;
+            text-align: center;
+            border-radius: 2px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 14px;
+            letter-spacing: 0.5px;
+            transition: background 0.2s;
+        }
+
+        .file-input-label:hover {
+            background: #2a2a2a;
+        }
+
+        .image-count {
+            margin-top: 12px;
+            text-align: center;
+            color: #666;
+            font-size: 13px;
+        }
+
+        .canvas-container {
+            position: relative;
+            margin: 30px auto;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        .canvas-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+
+        #collageCanvas {
+            border: 1px solid #e0e0e0;
+            border-radius: 2px;
+            cursor: default;
+            max-width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .resize-handle {
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            right: 0;
+            height: 20px;
+            cursor: ns-resize;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .resize-handle::after {
+            content: '';
+            width: 40px;
+            height: 3px;
+            background: #1a1a1a;
+            border-radius: 2px;
+        }
+
+        .resize-handle:hover::after {
+            background: #4a4a4a;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 14px 28px;
+            border: none;
+            border-radius: 2px;
+            font-weight: 500;
+            font-size: 14px;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .download-btn {
+            background: #1a1a1a;
+            color: white;
+        }
+
+        .download-btn:hover {
+            background: #2a2a2a;
+        }
+
+        .download-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .reset-btn {
+            background: white;
+            color: #1a1a1a;
+            border: 1px solid #e0e0e0;
+        }
+
+        .reset-btn:hover {
+            background: #fafafa;
+        }
+
+        .instructions {
+            background: #fafafa;
+            padding: 24px;
+            border-radius: 2px;
+            margin-top: 32px;
+            font-size: 13px;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .instructions strong {
+            color: #1a1a1a;
+            font-weight: 600;
+            display: block;
+            margin-bottom: 12px;
+        }
+
+        .instructions ul {
+            margin-left: 20px;
+            margin-top: 8px;
+        }
+
+        .instructions li {
+            margin-bottom: 6px;
+        }
+
+        .github-band {
+            position: fixed;
+            top: 18px;
+            right: -58px;
+            z-index: 1000;
+            display: inline-block;
+            padding: 10px 0;
+            width: 200px;
+            text-align: center;
+            background: #1a1a1a;
+            color: #ffffff;
+            text-decoration: none;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 0.6px;
+            transform: rotate(45deg);
+            border-radius: 2px;
+        }
+
+        .github-band:hover {
+            background: #2a2a2a;
+        }
+
+        .github-band:focus-visible {
+            outline: 2px solid #1a1a1a;
+            outline-offset: 4px;
+            background: #2a2a2a;
+        }
+    </style>
+</head>
+<body>
+    <a
+        class="github-band"
+        href="https://github.com/balazspiller/adjustable-3x3-photo-grid"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="Open this project on GitHub"
+    >GitHub</a>
+    <div class="container">
+        <h1>Adjustable 3x3 Photo Grid</h1>
+        
+        <div class="upload-section">
+            <div class="file-input-wrapper">
+                <input type="file" id="fileInput" accept="image/*" multiple>
+                <label for="fileInput" class="file-input-label">
+                    Add Images
+                </label>
+            </div>
+            <div class="image-count" id="imageCount">0 / 9 images selected</div>
+            
+            <div style="margin-top: 20px;">
+                <label for="maxWidth" style="display: block; margin-bottom: 10px; color: #1a1a1a; font-weight: 500; font-size: 13px; letter-spacing: 0.3px;">
+                    Export Max Width (pixels)
+                </label>
+                <input 
+                    type="number" 
+                    id="maxWidth" 
+                    min="600" 
+                    max="8000" 
+                    value="3000" 
+                    style="width: 100%; padding: 12px; border: 1px solid #e0e0e0; border-radius: 2px; font-size: 14px; font-family: inherit;"
+                >
+                <div style="margin-top: 8px; font-size: 12px; color: #999;">
+                    Higher values = better quality (default: 3000px)
+                </div>
+            </div>
+        </div>
+
+        <div class="canvas-container">
+            <div class="canvas-wrapper">
+                <canvas id="collageCanvas" width="600" height="600"></canvas>
+                <div class="resize-handle" id="resizeHandle"></div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="download-btn" id="downloadBtn" disabled>Download Collage</button>
+            <button class="reset-btn" id="resetBtn">Reset</button>
+        </div>
+
+        <div class="instructions">
+            <strong>How to use:</strong>
+            <ul>
+                <li>Click "Add Images" to select photos - you can do this multiple times until all 9 slots are filled</li>
+                <li>Drag images to swap their positions in the grid</li>
+                <li>Drag the horizontal or vertical grid lines to adjust cell sizes</li>
+                <li>Drag the bottom handle to change the canvas aspect ratio</li>
+                <li>Set your desired export width (higher = better quality)</li>
+                <li>Click "Download Collage" to save your high-resolution creation</li>
+            </ul>
+            <p style="margin-top: 12px; font-size: 12px; color: #999;">
+                This tool works entirely in your browser - no images are uploaded to any server.
+            </p>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('collageCanvas');
+        const ctx = canvas.getContext('2d');
+        const fileInput = document.getElementById('fileInput');
+        const imageCount = document.getElementById('imageCount');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const resizeHandle = document.getElementById('resizeHandle');
+        const maxWidthInput = document.getElementById('maxWidth');
+
+        let images = Array(9).fill(null); // Initialize with 9 null slots
+        let loadedImages = [];
+        
+        // Grid lines positions (percentages of canvas size)
+        let verticalLines = [33.33, 66.66]; // Two vertical lines
+        let horizontalLines = [33.33, 66.66]; // Two horizontal lines
+        
+        let dragging = false;
+        let dragType = null; // 'vertical', 'horizontal', 'canvas', or 'image'
+        let dragIndex = -1;
+        let resizingCanvas = false;
+        let startY = 0;
+        let startHeight = 600;
+        
+        // Image dragging
+        let draggingImage = false;
+        let draggedImageIndex = -1;
+        let draggedOverIndex = -1;
+        let dragOffset = { x: 0, y: 0 };
+        let currentMousePos = { x: 0, y: 0 };
+
+        fileInput.addEventListener('change', handleFileSelect);
+        downloadBtn.addEventListener('click', downloadCollage);
+        resetBtn.addEventListener('click', reset);
+        canvas.addEventListener('mousedown', handleMouseDown);
+        canvas.addEventListener('mousemove', handleMouseMove);
+        canvas.addEventListener('mouseup', handleMouseUp);
+        canvas.addEventListener('mouseleave', handleMouseUp);
+        
+        // Touch events for mobile
+        canvas.addEventListener('touchstart', handleTouchStart);
+        canvas.addEventListener('touchmove', handleTouchMove);
+        canvas.addEventListener('touchend', handleMouseUp);
+        
+        // Resize handle events
+        resizeHandle.addEventListener('mousedown', handleResizeStart);
+        resizeHandle.addEventListener('touchstart', handleResizeTouchStart);
+        document.addEventListener('mousemove', handleResizeMove);
+        document.addEventListener('touchmove', handleResizeTouchMove);
+        document.addEventListener('mouseup', handleResizeEnd);
+        document.addEventListener('touchend', handleResizeEnd);
+
+        function handleFileSelect(e) {
+            const files = Array.from(e.target.files);
+            
+            if (files.length === 0) return;
+
+            // Calculate how many slots are available
+            const currentCount = images.filter(img => img !== null).length;
+            const slotsAvailable = 9 - currentCount;
+            const filesToLoad = files.slice(0, slotsAvailable);
+
+            let loadedCount = 0;
+
+            filesToLoad.forEach((file) => {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        // Find the first empty slot
+                        const emptyIndex = images.findIndex((img, idx) => img === null || img === undefined);
+                        if (emptyIndex !== -1) {
+                            images[emptyIndex] = img;
+                        } else {
+                            images.push(img);
+                        }
+                        
+                        loadedCount++;
+                        const totalLoaded = images.filter(img => img !== null && img !== undefined).length;
+                        imageCount.textContent = `${totalLoaded} / 9 images selected`;
+                        
+                        if (totalLoaded === 9) {
+                            downloadBtn.disabled = false;
+                        }
+                        
+                        drawCollage();
+                    };
+                    img.src = event.target.result;
+                };
+                reader.readAsDataURL(file);
+            });
+
+            // Don't clear the file input so users can select more
+            // Reset the input value to allow selecting the same file again if needed
+            setTimeout(() => {
+                fileInput.value = '';
+            }, 100);
+        }
+
+        function drawCollage() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Calculate cell boundaries
+            const cols = [0, ...verticalLines.map(p => p * canvas.width / 100), canvas.width];
+            const rows = [0, ...horizontalLines.map(p => p * canvas.height / 100), canvas.height];
+
+            let imageIndex = 0;
+            for (let row = 0; row < 3; row++) {
+                for (let col = 0; col < 3; col++) {
+                    const x = cols[col];
+                    const y = rows[row];
+                    const w = cols[col + 1] - cols[col];
+                    const h = rows[row + 1] - rows[row];
+
+                    // Don't draw the image being dragged in its original position
+                    if (images[imageIndex] && imageIndex !== draggedImageIndex) {
+                        drawImageFit(images[imageIndex], x, y, w, h);
+                    } else if (imageIndex === draggedImageIndex && images[imageIndex]) {
+                        // Draw a dimmed placeholder
+                        ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+                        ctx.fillRect(x, y, w, h);
+                        ctx.strokeStyle = '#ddd';
+                        ctx.setLineDash([10, 5]);
+                        ctx.lineWidth = 2;
+                        ctx.strokeRect(x, y, w, h);
+                        ctx.setLineDash([]);
+                    } else if (!images[imageIndex]) {
+                        // Draw empty cell with placeholder
+                        ctx.fillStyle = '#fafafa';
+                        ctx.fillRect(x, y, w, h);
+                        ctx.strokeStyle = '#e0e0e0';
+                        ctx.setLineDash([5, 5]);
+                        ctx.lineWidth = 1;
+                        ctx.strokeRect(x + 5, y + 5, w - 10, h - 10);
+                        ctx.setLineDash([]);
+                        
+                        // Draw plus icon
+                        ctx.strokeStyle = '#ccc';
+                        ctx.lineWidth = 2;
+                        const centerX = x + w / 2;
+                        const centerY = y + h / 2;
+                        const size = Math.min(w, h) * 0.15;
+                        ctx.beginPath();
+                        ctx.moveTo(centerX - size, centerY);
+                        ctx.lineTo(centerX + size, centerY);
+                        ctx.moveTo(centerX, centerY - size);
+                        ctx.lineTo(centerX, centerY + size);
+                        ctx.stroke();
+                    }
+                    
+                    // Highlight if being dragged over
+                    if (imageIndex === draggedOverIndex && draggingImage && imageIndex !== draggedImageIndex) {
+                        ctx.fillStyle = 'rgba(26, 26, 26, 0.08)';
+                        ctx.fillRect(x, y, w, h);
+                        ctx.strokeStyle = '#1a1a1a';
+                        ctx.lineWidth = 2;
+                        ctx.setLineDash([]);
+                        ctx.strokeRect(x, y, w, h);
+                    }
+                    imageIndex++;
+                }
+            }
+
+            // Draw grid lines
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 3;
+            ctx.shadowColor = 'rgba(0,0,0,0.15)';
+            ctx.shadowBlur = 3;
+            ctx.setLineDash([]);
+
+            verticalLines.forEach(pos => {
+                const x = pos * canvas.width / 100;
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, canvas.height);
+                ctx.stroke();
+            });
+
+            horizontalLines.forEach(pos => {
+                const y = pos * canvas.height / 100;
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(canvas.width, y);
+                ctx.stroke();
+            });
+
+            ctx.shadowColor = 'transparent';
+            
+            // Draw the dragged image following the cursor
+            if (draggingImage && draggedImageIndex !== -1 && images[draggedImageIndex]) {
+                const dragSize = 120;
+                const dragX = currentMousePos.x - dragSize / 2;
+                const dragY = currentMousePos.y - dragSize / 2;
+                
+                // Draw shadow
+                ctx.shadowColor = 'rgba(0,0,0,0.2)';
+                ctx.shadowBlur = 12;
+                ctx.shadowOffsetX = 0;
+                ctx.shadowOffsetY = 4;
+                
+                // Draw background
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(dragX, dragY, dragSize, dragSize);
+                
+                ctx.shadowColor = 'transparent';
+                
+                // Draw the image
+                ctx.save();
+                ctx.globalAlpha = 0.95;
+                drawImageFit(images[draggedImageIndex], dragX, dragY, dragSize, dragSize);
+                ctx.restore();
+                
+                // Draw border
+                ctx.strokeStyle = '#1a1a1a';
+                ctx.lineWidth = 2;
+                ctx.strokeRect(dragX, dragY, dragSize, dragSize);
+            }
+        }
+
+        function drawImageFit(img, x, y, w, h) {
+            const imgRatio = img.width / img.height;
+            const cellRatio = w / h;
+
+            let drawWidth, drawHeight, offsetX, offsetY;
+
+            if (imgRatio > cellRatio) {
+                drawHeight = h;
+                drawWidth = h * imgRatio;
+                offsetX = (w - drawWidth) / 2;
+                offsetY = 0;
+            } else {
+                drawWidth = w;
+                drawHeight = w / imgRatio;
+                offsetX = 0;
+                offsetY = (h - drawHeight) / 2;
+            }
+
+            ctx.save();
+            ctx.beginPath();
+            ctx.rect(x, y, w, h);
+            ctx.clip();
+            ctx.drawImage(img, x + offsetX, y + offsetY, drawWidth, drawHeight);
+            ctx.restore();
+        }
+
+        function handleMouseDown(e) {
+            if (images.length !== 9) return;
+
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            const x = (e.clientX - rect.left) * scaleX;
+            const y = (e.clientY - rect.top) * scaleY;
+
+            const threshold = 10;
+
+            // Check vertical lines first
+            for (let i = 0; i < verticalLines.length; i++) {
+                const lineX = verticalLines[i] * canvas.width / 100;
+                if (Math.abs(x - lineX) < threshold) {
+                    dragging = true;
+                    dragType = 'vertical';
+                    dragIndex = i;
+                    return;
+                }
+            }
+
+            // Check horizontal lines
+            for (let i = 0; i < horizontalLines.length; i++) {
+                const lineY = horizontalLines[i] * canvas.height / 100;
+                if (Math.abs(y - lineY) < threshold) {
+                    dragging = true;
+                    dragType = 'horizontal';
+                    dragIndex = i;
+                    return;
+                }
+            }
+
+            // Check if clicking on an image
+            const cellIndex = getCellIndexAt(x, y);
+            if (cellIndex !== -1 && images[cellIndex]) {
+                draggingImage = true;
+                draggedImageIndex = cellIndex;
+                canvas.style.cursor = 'grabbing';
+            }
+        }
+
+        function handleMouseMove(e) {
+            if (resizingCanvas) return;
+            
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            const x = (e.clientX - rect.left) * scaleX;
+            const y = (e.clientY - rect.top) * scaleY;
+
+            currentMousePos = { x, y };
+
+            if (draggingImage) {
+                const cellIndex = getCellIndexAt(x, y);
+                if (cellIndex !== draggedImageIndex && cellIndex !== -1) {
+                    draggedOverIndex = cellIndex;
+                } else {
+                    draggedOverIndex = -1;
+                }
+                drawCollage();
+                return;
+            }
+
+            if (!dragging) {
+                updateCursor(e);
+                return;
+            }
+
+            if (dragType === 'vertical') {
+                let newPos = (x / canvas.width) * 100;
+                newPos = Math.max(5, Math.min(95, newPos));
+                verticalLines[dragIndex] = newPos;
+            } else if (dragType === 'horizontal') {
+                let newPos = (y / canvas.height) * 100;
+                newPos = Math.max(5, Math.min(95, newPos));
+                horizontalLines[dragIndex] = newPos;
+            }
+
+            drawCollage();
+        }
+
+        function handleMouseUp() {
+            if (draggingImage && draggedOverIndex !== -1 && draggedImageIndex !== draggedOverIndex) {
+                // Swap images
+                const temp = images[draggedImageIndex];
+                images[draggedImageIndex] = images[draggedOverIndex];
+                images[draggedOverIndex] = temp;
+            }
+            
+            dragging = false;
+            dragType = null;
+            dragIndex = -1;
+            draggingImage = false;
+            draggedImageIndex = -1;
+            draggedOverIndex = -1;
+            canvas.style.cursor = 'default';
+            drawCollage();
+        }
+
+        function handleTouchStart(e) {
+            e.preventDefault();
+            const touch = e.touches[0];
+            const mouseEvent = new MouseEvent('mousedown', {
+                clientX: touch.clientX,
+                clientY: touch.clientY
+            });
+            handleMouseDown(mouseEvent);
+        }
+
+        function handleTouchMove(e) {
+            e.preventDefault();
+            if (!dragging) return;
+            const touch = e.touches[0];
+            const mouseEvent = new MouseEvent('mousemove', {
+                clientX: touch.clientX,
+                clientY: touch.clientY
+            });
+            handleMouseMove(mouseEvent);
+        }
+
+        function handleResizeStart(e) {
+            e.preventDefault();
+            resizingCanvas = true;
+            startY = e.clientY;
+            startHeight = canvas.height;
+        }
+
+        function handleResizeTouchStart(e) {
+            e.preventDefault();
+            resizingCanvas = true;
+            startY = e.touches[0].clientY;
+            startHeight = canvas.height;
+        }
+
+        function handleResizeMove(e) {
+            if (!resizingCanvas) return;
+            const deltaY = e.clientY - startY;
+            const newHeight = Math.max(200, Math.min(1200, startHeight + deltaY));
+            canvas.height = newHeight;
+            drawCollage();
+        }
+
+        function handleResizeTouchMove(e) {
+            if (!resizingCanvas) return;
+            e.preventDefault();
+            const deltaY = e.touches[0].clientY - startY;
+            const newHeight = Math.max(200, Math.min(1200, startHeight + deltaY));
+            canvas.height = newHeight;
+            drawCollage();
+        }
+
+        function handleResizeEnd() {
+            resizingCanvas = false;
+        }
+
+        function updateCursor(e) {
+            if (images.length !== 9) {
+                canvas.style.cursor = 'default';
+                return;
+            }
+
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            const x = (e.clientX - rect.left) * scaleX;
+            const y = (e.clientY - rect.top) * scaleY;
+
+            const threshold = 10;
+            let cursorSet = false;
+
+            // Check vertical lines
+            for (let i = 0; i < verticalLines.length; i++) {
+                const lineX = verticalLines[i] * canvas.width / 100;
+                if (Math.abs(x - lineX) < threshold) {
+                    canvas.style.cursor = 'ew-resize';
+                    cursorSet = true;
+                    break;
+                }
+            }
+
+            if (!cursorSet) {
+                // Check horizontal lines
+                for (let i = 0; i < horizontalLines.length; i++) {
+                    const lineY = horizontalLines[i] * canvas.height / 100;
+                    if (Math.abs(y - lineY) < threshold) {
+                        canvas.style.cursor = 'ns-resize';
+                        cursorSet = true;
+                        break;
+                    }
+                }
+            }
+
+            if (!cursorSet) {
+                // Check if over an image
+                const cellIndex = getCellIndexAt(x, y);
+                if (cellIndex !== -1 && images[cellIndex]) {
+                    canvas.style.cursor = 'grab';
+                } else {
+                    canvas.style.cursor = 'default';
+                }
+            }
+        }
+
+        function getCellIndexAt(x, y) {
+            const cols = [0, ...verticalLines.map(p => p * canvas.width / 100), canvas.width];
+            const rows = [0, ...horizontalLines.map(p => p * canvas.height / 100), canvas.height];
+
+            for (let row = 0; row < 3; row++) {
+                for (let col = 0; col < 3; col++) {
+                    if (x >= cols[col] && x < cols[col + 1] && 
+                        y >= rows[row] && y < rows[row + 1]) {
+                        return row * 3 + col;
+                    }
+                }
+            }
+            return -1;
+        }
+
+        function downloadCollage() {
+            // Get the export dimensions based on user's max width setting
+            const maxWidth = parseInt(maxWidthInput.value) || 3000;
+            const aspectRatio = canvas.height / canvas.width;
+            const exportWidth = maxWidth;
+            const exportHeight = Math.round(maxWidth * aspectRatio);
+            
+            // Create a high-resolution canvas for export
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = exportWidth;
+            tempCanvas.height = exportHeight;
+            const tempCtx = tempCanvas.getContext('2d');
+            
+            // Enable image smoothing for better quality
+            tempCtx.imageSmoothingEnabled = true;
+            tempCtx.imageSmoothingQuality = 'high';
+
+            const cols = [0, ...verticalLines.map(p => p * exportWidth / 100), exportWidth];
+            const rows = [0, ...horizontalLines.map(p => p * exportHeight / 100), exportHeight];
+
+            let imageIndex = 0;
+            for (let row = 0; row < 3; row++) {
+                for (let col = 0; col < 3; col++) {
+                    const x = cols[col];
+                    const y = rows[row];
+                    const w = cols[col + 1] - cols[col];
+                    const h = rows[row + 1] - rows[row];
+
+                    if (images[imageIndex]) {
+                        const img = images[imageIndex];
+                        const imgRatio = img.width / img.height;
+                        const cellRatio = w / h;
+
+                        let drawWidth, drawHeight, offsetX, offsetY;
+
+                        if (imgRatio > cellRatio) {
+                            drawHeight = h;
+                            drawWidth = h * imgRatio;
+                            offsetX = (w - drawWidth) / 2;
+                            offsetY = 0;
+                        } else {
+                            drawWidth = w;
+                            drawHeight = w / imgRatio;
+                            offsetX = 0;
+                            offsetY = (h - drawHeight) / 2;
+                        }
+
+                        tempCtx.save();
+                        tempCtx.beginPath();
+                        tempCtx.rect(x, y, w, h);
+                        tempCtx.clip();
+                        tempCtx.drawImage(img, x + offsetX, y + offsetY, drawWidth, drawHeight);
+                        tempCtx.restore();
+                    }
+                    imageIndex++;
+                }
+            }
+
+            // Convert to blob and download with high quality
+            tempCanvas.toBlob((blob) => {
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.download = `collage-${exportWidth}x${exportHeight}-${Date.now()}.png`;
+                link.href = url;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+            }, 'image/png', 1.0);
+        }
+
+        function reset() {
+            images = Array(9).fill(null);
+            loadedImages = [];
+            verticalLines = [33.33, 66.66];
+            horizontalLines = [33.33, 66.66];
+            canvas.width = 600;
+            canvas.height = 600;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            fileInput.value = '';
+            imageCount.textContent = '0 / 9 images selected';
+            downloadBtn.disabled = true;
+            drawCollage();
+        }
+    </script>
+</body>
+</html>
